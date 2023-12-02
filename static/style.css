@@ -105,3 +105,26 @@ body {
   .submit-button:hover {
     background-color: #45a049;
   }
+
+  .message {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    color: #333;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+}
+
+.message-success {
+    border-color: #28a745;
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message-error {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}

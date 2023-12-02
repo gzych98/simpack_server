@@ -18,7 +18,8 @@
             </div>
             <div class="column column-right">
                 <h1>Queue</h1>
-                <div id="current-order"></div>
+                <div id="current"></div>
+                <button onclick="updateCurrentOrderDisplay()">Aktualizuj zamówienie</button>
             </div>
         </div>
         <script>
@@ -66,19 +67,36 @@
                     updateCurrentOrderDisplay();
 
                 }
-                function updateCurrentOrderDisplay() {
-                fetch('/update_order') 
-                    .then(response => response.json())
-                    .then(order => {
-                        const orderContainer = document.getElementById('current-order');
-                        orderContainer.innerHTML = ''; // Wyczyść obecny stan
-                        order.forEach(item => {
-                            const listItem = document.createElement('p');
-                            listItem.textContent = item;
-                            orderContainer.appendChild(listItem);
-                        });
-                        });
-                }
+            });
+            function updateCurrentOrderDisplay() {
+                fetch('/update_order', {
+                    method: 'GET', 
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Błąd sieci lub serwera');
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    console.log(order);
+                    const orderContainer = document.getElementById('current');
+                    orderContainer.innerHTML = ''; // Wyczyść obecny stan
+
+                    // Utwórz pole tekstowe
+                    const inputField = document.createElement('input');
+                    inputField.type = 'text';
+                    inputField.value = order.join(', '); // Połącz elementy zamówienia w jednym ciągu
+
+                    orderContainer.appendChild(inputField);
+                })
+                .catch(error => {
+                    console.error('Błąd fetch:', error);
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                updateCurrentOrderDisplay();
             });
             </script>
     </body>

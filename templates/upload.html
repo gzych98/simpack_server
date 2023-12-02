@@ -12,7 +12,11 @@
             <label for="file-upload">Select files...</label>
             <input id="file-upload" type="file" name="file" multiple>
         </div>
-        <input type="submit" value="Upload!" class="submit-button">
+        <input type="submit" value="Upload!" class="submit-button"> 
+        
+        {% for message in messages %}
+            <div class="message {{ 'message-success' if 'uploaded' in message else 'message-error' }}">{{ message | safe }}</div>
+        {% endfor %}
     </form>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
