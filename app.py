@@ -26,6 +26,8 @@ def upload_file():
     messages = []
     if request.method == 'POST':
         files = request.files.getlist('file')
+        user_ip = request.remote_addr  # Pobieranie adresu IP użytkownika
+
         if not files:
             messages.append('Nie wybrano żadnych plików.')
         else:
@@ -37,15 +39,25 @@ def upload_file():
                     with zipfile.ZipFile(filepath) as zip_ref:
                         zip_ref.extractall(app.config['UPLOAD_FOLDER'])
                     messages.append(f"File uploaded: {file.filename}")
+                    current_order.append({'filename': file.filename, 'user_ip': user_ip})
                 else:
                     messages.append(f"Extension error: {file.filename}. Only .zip files accepted.<br>")
+    print(current_order)
     return render_template('upload.html', messages=messages)
 
 
+
+# @app.route('/filelist')
+# def filelist():
+#     files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith(app.config['EXTENSION_LIST'])] 
+#     return render_template('filelist.html', files=files)
+
 @app.route('/filelist')
 def filelist():
-    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith(app.config['EXTENSION_LIST'])] 
-    return render_template('filelist.html', files=files)
+    # Tu zakładamy, że `current_order` przechowuje listę słowników z 'filename' i 'user_ip'
+    global current_order
+    return render_template('filelist.html', files=current_order)
+
 
 @app.route('/update_order', methods=['GET', 'POST'])
 def update_order():

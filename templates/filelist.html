@@ -11,6 +11,9 @@
             <div class="column column-left">
                 <h1>ZIP File list</h1>
                 <ul>
+                    {% for file_info in files %}
+                        <li class="draggable" data-id="{{ file }}" draggable="true">{{ file_info['user_ip'] }} {{ file_info['filename'] }}</li>
+                    {% endfor %}
                     {% for file in files %}
                         <li class="draggable" data-id="{{ file }}" draggable="true">{{ file }}</li>
                     {% endfor %}
@@ -19,7 +22,6 @@
             <div class="column column-right">
                 <h1>Queue</h1>
                 <div id="current"></div>
-                <button onclick="updateCurrentOrderDisplay()">Aktualizuj zamówienie</button>
             </div>
         </div>
         <script>
