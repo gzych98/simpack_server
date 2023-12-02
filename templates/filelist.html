@@ -11,9 +11,10 @@
             <div class="column column-left">
                 <h1>ZIP File list</h1>
                 <ul>
+                    <!-- IP UZYTKOWNIKA 
                     {% for file_info in files %}
                         <li class="draggable" data-id="{{ file }}" draggable="true">{{ file_info['user_ip'] }} {{ file_info['filename'] }}</li>
-                    {% endfor %}
+                    {% endfor %} -->
                     {% for file in files %}
                         <li class="draggable" data-id="{{ file }}" draggable="true">{{ file }}</li>
                     {% endfor %}
@@ -70,6 +71,10 @@
 
                 }
             });
+            document.addEventListener('DOMContentLoaded', (event) => {
+                updateCurrentOrderDisplay();
+            });
+
             function updateCurrentOrderDisplay() {
                 fetch('/get_current_order')
                     .then(response => response.json())
