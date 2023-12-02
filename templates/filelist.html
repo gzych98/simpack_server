@@ -69,30 +69,22 @@
                 }
             });
             function updateCurrentOrderDisplay() {
-                fetch('/update_order', {
-                    method: 'GET', 
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Błąd sieci lub serwera');
-                    }
-                    return response.json();
-                })
-                .then(order => {
-                    console.log(order);
-                    const orderContainer = document.getElementById('current');
-                    orderContainer.innerHTML = ''; // Wyczyść obecny stan
+                fetch('/get_current_order')
+                    .then(response => response.json())
+                    .then(data => {
+                        const orderContainer = document.getElementById('current');
+                        orderContainer.innerHTML = ''; // Wyczyść obecny stan
 
-                    // Utwórz pole tekstowe
-                    const inputField = document.createElement('input');
-                    inputField.type = 'text';
-                    inputField.value = order.join(', '); // Połącz elementy zamówienia w jednym ciągu
-
-                    orderContainer.appendChild(inputField);
-                })
-                .catch(error => {
-                    console.error('Błąd fetch:', error);
-                });
+                        // Utwórz elementy listy dla każdego elementu kolejności
+                        data.current_order.forEach(item => {
+                            const listItem = document.createElement('p');
+                            listItem.textContent = item;
+                            orderContainer.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Błąd fetch:', error);
+                    });
             }
 
             document.addEventListener("DOMContentLoaded", function () {
