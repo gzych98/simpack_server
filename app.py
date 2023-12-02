@@ -17,7 +17,11 @@ def allowed_file(filename):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['EXTENSION_LIST'] = EXTENSION_LIST
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/upload_files', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         files = request.files.getlist('file')
@@ -41,7 +45,8 @@ def update_order():
     global current_order
     new_order = request.json
     current_order = new_order
-    return jsonify({"succes": True, "new_order": current_order})
+    print(f"-- Current file order: {' | '.join(map(str, current_order))}")
+    return jsonify({"success": True, "new_order": current_order})
 
 if __name__ == '__main__':
     app.run(debug=True)

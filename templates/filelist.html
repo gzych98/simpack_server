@@ -17,8 +17,8 @@
                 </ul>
             </div>
             <div class="column column-right">
-                <h1>Log Serwera</h1>
-                <div id="log-container"></div>
+                <h1>Queue</h1>
+                <div id="current-order"></div>
             </div>
         </div>
         <script>
@@ -62,10 +62,24 @@
                     })
                     .then(response => response.json())
                     .then(data => console.log(data));
+                    // aktualizacja kolumny
+                    updateCurrentOrderDisplay();
 
+                }
+                function updateCurrentOrderDisplay() {
+                fetch('/update_order') 
+                    .then(response => response.json())
+                    .then(order => {
+                        const orderContainer = document.getElementById('current-order');
+                        orderContainer.innerHTML = ''; // Wyczyść obecny stan
+                        order.forEach(item => {
+                            const listItem = document.createElement('p');
+                            listItem.textContent = item;
+                            orderContainer.appendChild(listItem);
+                        });
+                        });
                 }
             });
             </script>
-            
     </body>
 </html>
