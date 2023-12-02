@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <title>Prześlij pliki</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    {% include 'navbar.html' %}
+</head>
+<body>
+    <h1>Prześlij pliki zip</h1>
+    <form method="post" enctype="multipart/form-data">
+        <div class="file-input">
+            <label for="file-upload">Select files...</label>
+            <input id="file-upload" type="file" name="file" multiple>
+        </div>
+        <input type="submit" value="Upload!" class="submit-button">
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let form = document.querySelector('form');
+            form.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            form.addEventListener('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let dt = e.dataTransfer;
+                let files = dt.files;
+                form.file.files = files;
+            });
+        });
+    </script>
+</body>
+</html>

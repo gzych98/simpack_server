@@ -1,36 +1,47 @@
-from flask import Flask, request, redirect, url_for
+from flask import Flask, jsonify, request, render_template
 import os
+import zipfile
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'UPLOAD'
 ALLOWED_EXTENSIONS = {'zip'}
+EXTENSION_LIST = 'zip'
+
+current_order = []
+
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['EXTENSION_LIST'] = EXTENSION_LIST
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-            return 'Plik został przesłany'
-    return '''
-    <!doctype html>
-    <title>Prześlij plik</title>
-    <h1>Prześlij plik zip</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Prześlij>
-    </form>
-    '''
+        files = request.files.getlist('file')
+        for file in files:
+            if file and allowed_file(file.filename):
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename) 
+                file.save(filepath)
+                #rozpakuj pliki
+                with zipfile.ZipFile(filepath) as zip_ref:
+                    zip_ref.extractall(app.config['UPLOAD_FOLDER'])
+        return 'Plik został przesłany'
+    return render_template('upload.html')
+
+@app.route('/filelist')
+def filelist():
+    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith(app.config['EXTENSION_LIST'])] 
+    return render_template('filelist.html', files=files)
+
+@app.route ('/update_order', methods=['POST'])
+def update_order():
+    global current_order
+    new_order = request.json
+    current_order = new_order
+    return jsonify({"succes": True, "new_order": current_order})
 
 if __name__ == '__main__':
     app.run(debug=True)

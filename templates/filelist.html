@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <title>File List</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        {% include 'navbar.html' %}
+    </head>
+    <body>
+        <div class="container">
+            <div class="column column-left">
+                <h1>ZIP File list</h1>
+                <ul>
+                    {% for file in files %}
+                        <li class="draggable" data-id="{{ file }}" draggable="true">{{ file }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="column column-right">
+                <h1>Log Serwera</h1>
+                <div id="log-container"></div>
+            </div>
+        </div>
+        <script>
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                const listItems = document.querySelectorAll('.draggable');
+                listItems.forEach(item => {
+                    item.addEventListener('dragstart', handleDragStart, false);
+                    item.addEventListener('dragover', handleDragOver, false);
+                    item.addEventListener('drop', handleDrop, false);
+                });
+            
+                function handleDragStart(e) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', e.target.getAttribute('data-id'));
+                }
+            
+                function handleDragOver(e) {
+                    e.preventDefault();
+                }
+            
+                function handleDrop(e) {
+                    e.stopPropagation();
+                    const draggedItemId = e.dataTransfer.getData('text/plain');
+                    const targetItem = e.target.closest('.draggable');
+                    
+                    // Zamiana miejscami elementów listy
+                    const list = targetItem.parentNode;
+                    const draggedItem = list.querySelector(`[data-id="${draggedItemId}"]`);
+                    list.insertBefore(draggedItem, targetItem.nextSibling);
+                    // Pobierz zaktualizowaną kolejność
+                    const updatedOrder = Array.from(list.children).map(item => item.getAttribute('data-id'));
+
+                    // Wyślij zaktualizowaną kolejność do serwera
+                    fetch('/update_order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updatedOrder),
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log(data));
+
+                }
+            });
+            </script>
+            
+    </body>
+</html>
