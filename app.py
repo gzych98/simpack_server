@@ -5,9 +5,10 @@ import zipfile
 app = Flask(__name__)
 UPLOAD_FOLDER = 'UPLOAD'
 ALLOWED_EXTENSIONS = {'zip'}
-EXTENSION_LIST = 'zip'
+EXTENSION_LIST = 'txt'
 
 current_order = []
+file_with_labels = []
 
 
 def allowed_file(filename):
@@ -43,14 +44,34 @@ def upload_file():
                 else:
                     messages.append(f"Extension error: {file.filename}. Only .zip files accepted.<br>")
     print(current_order)
+    label_items()
     return render_template('upload.html', messages=messages)
 
+def label_items():
+    global file_with_labels
+    if not file_with_labels:
+        files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith(app.config['EXTENSION_LIST'])]
+        for file in files:
+            label = '1' if not file_with_labels else '2'
+            file_with_labels.append({'filename': file, 'label': label})
+        return print(file_with_labels)
+    else:
+        update_label()
+    return print(file_with_labels)
 
+def update_label():
+    global file_with_labels
+    print(file_with_labels)
+    for index, file_dict in enumerate(file_with_labels):
+        if index == 0:
+            file_dict['label'] = '1'  # Przypisz etykietę '1' pierwszemu elementowi
+        else:
+            file_dict['label'] = '2'  # Przypisz etykietę '2' wszystkim pozostałym elementom
 
 @app.route('/filelist')
 def filelist():
-    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith(app.config['EXTENSION_LIST'])] 
-    return render_template('filelist.html', files=files)
+    label_items()
+    return render_template('filelist.html', files=file_with_labels)
 
 # WERSJA Z IP UŻYTKOWNIKA
 # @app.route('/filelist')
