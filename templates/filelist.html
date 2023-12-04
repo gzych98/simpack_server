@@ -19,11 +19,17 @@
                         <li class="draggable" data-id="{{ file }}" draggable="true">{{ file }}</li>
                     {% endfor %}
                 </ul> -->
-                <ul>
-                    <!-- Iteracja po liście files_with_labels -->
+                <!-- <ul>
                     {% for file_info in files %}
                         <li class="draggable" data-id="{{ file_info.filename }}" draggable="true">
                             {{ file_info.filename }} - Etykieta: {{ file_info.label }}
+                        </li>
+                    {% endfor %}
+                </ul> -->
+                <ul>
+                    {% for file_info in files %}
+                        <li class="draggable" data-id="{{ file_info.file_path }}" draggable="true">
+                            {{ file_info.file_path }} - Etykieta: {{ file_info.file_label }}
                         </li>
                     {% endfor %}
                 </ul>
@@ -34,37 +40,47 @@
             </div>
         </div>
         <script>
-
+            // Uruchomienie skryptu po załadowaniu dokumentu
             document.addEventListener('DOMContentLoaded', (event) => {
+                // Znalezienie wszystkich elementów, które można przeciągać
                 const listItems = document.querySelectorAll('.draggable');
                 listItems.forEach(item => {
+                    // Dodanie obsługi zdarzeń dla przeciągania i upuszczania
                     item.addEventListener('dragstart', handleDragStart, false);
                     item.addEventListener('dragover', handleDragOver, false);
                     item.addEventListener('drop', handleDrop, false);
                 });
-            
+        
+                // Funkcja obsługująca rozpoczęcie przeciągania
                 function handleDragStart(e) {
                     e.dataTransfer.effectAllowed = 'move';
                     e.dataTransfer.setData('text/plain', e.target.getAttribute('data-id'));
                 }
-            
+        
+                // Funkcja obsługująca przebieg przeciągania nad elementem
                 function handleDragOver(e) {
-                    e.preventDefault();
+                    e.preventDefault(); // Zapobieganie domyślnemu zachowaniu przeglądarki
                 }
-            
+        
+                // Funkcja obsługująca upuszczenie elementu
                 function handleDrop(e) {
-                    e.stopPropagation();
+                    e.stopPropagation(); // Zapobieganie propagacji zdarzenia dalej
+        
+                    // Pobieranie identyfikatora przeciąganego elementu
                     const draggedItemId = e.dataTransfer.getData('text/plain');
                     const targetItem = e.target.closest('.draggable');
                     
-                    // Zamiana miejscami elementów listy
+                    // Zamiana miejscami elementów w DOM
                     const list = targetItem.parentNode;
                     const draggedItem = list.querySelector(`[data-id="${draggedItemId}"]`);
                     list.insertBefore(draggedItem, targetItem.nextSibling);
-                    // Pobierz zaktualizowaną kolejność
-                    const updatedOrder = Array.from(list.children).map(item => item.getAttribute('data-id'));
-
-                    // Wyślij zaktualizowaną kolejność do serwera
+                    
+                    // Tworzenie zaktualizowanej kolejności
+                    const updatedOrder = Array.from(list.children).map(item => ({
+                        filename: item.getAttribute('data-id')
+                    }));
+        
+                    // Wysyłanie zaktualizowanej kolejności do serwera
                     fetch('/update_order', {
                         method: 'POST',
                         headers: {
@@ -73,38 +89,45 @@
                         body: JSON.stringify(updatedOrder),
                     })
                     .then(response => response.json())
-                    .then(data => console.log(data));
-                    // aktualizacja kolumny
-                    updateCurrentOrderDisplay();
-
+                    .then(data => {
+                        console.log(data);
+                        updateLabelsDisplay(data.new_order); // Aktualizacja etykiet
+                    })
+                    .catch(error => console.error('Błąd:', error));
                 }
-            });
-            document.addEventListener('DOMContentLoaded', (event) => {
+        
+                // Funkcja do aktualizacji etykiet
+                function updateLabelsDisplay(updatedOrder) {
+                    updatedOrder.forEach((item, index) => {
+                        let listItem = document.querySelector(`[data-id="${item.filename}"]`);
+                        if (listItem) {
+                            listItem.textContent = `${item.filename} - Etykieta: ${index === 0 ? '1' : '2'}`;
+                        }
+                    });
+                }
+        
+                // Wywołanie aktualizacji wyświetlanych danych
                 updateCurrentOrderDisplay();
             });
-
+        
+            // Funkcja do pobierania i wyświetlania aktualnej kolejności
             function updateCurrentOrderDisplay() {
                 fetch('/get_current_order')
                     .then(response => response.json())
                     .then(data => {
                         const orderContainer = document.getElementById('current');
                         orderContainer.innerHTML = ''; // Wyczyść obecny stan
-
-                        // Utwórz elementy listy dla każdego elementu kolejności
+        
                         data.current_order.forEach(item => {
                             const listItem = document.createElement('p');
-                            listItem.textContent = item;
+                            listItem.textContent = item.filename; // Wyświetlanie nazwy pliku
                             orderContainer.appendChild(listItem);
                         });
-                    })
+                    }).then(data => console.log(data))
                     .catch(error => {
                         console.error('Błąd fetch:', error);
                     });
             }
-
-            document.addEventListener("DOMContentLoaded", function () {
-                updateCurrentOrderDisplay();
-            });
-            </script>
+        </script>        
     </body>
 </html>
