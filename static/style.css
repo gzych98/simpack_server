@@ -70,7 +70,7 @@ body {
 
 .file-input {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 20px 50px;
     border-radius: 4px;
     display: inline-block;
     cursor: pointer;
@@ -95,15 +95,18 @@ body {
   .submit-button {
     background-color: #4CAF50; /* Kolor tła */
     color: white; /* Kolor tekstu */
+    margin-left: 20px;
     padding: 12px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
   }
   
   .submit-button:hover {
     background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
   .message {
